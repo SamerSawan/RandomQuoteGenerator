@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 type Quote struct {
@@ -15,7 +18,7 @@ type Quote struct {
 	Category string `json:"c"`
 }
 
-func main() {
+func HandleRequest(ctx context.Context) (string, error) {
 	response, err := http.Get("https://zenquotes.io/api/quotes/")
 
 	if err != nil {
@@ -34,5 +37,9 @@ func main() {
 	var quotes []Quote
 	err = json.Unmarshal(responseData, &quotes)
 
-	fmt.Println(quotes[0].Quote)
+	return quotes[0].Quote, nil
+}
+
+func main() {
+	lambda.Start(HandleRequest)
 }
